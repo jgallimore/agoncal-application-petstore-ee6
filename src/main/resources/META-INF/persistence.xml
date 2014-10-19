@@ -15,6 +15,7 @@
         <class>org.agoncal.application.petstore.domain.Product</class>
         <class>org.agoncal.application.petstore.domain.Address</class>
         <class>org.agoncal.application.petstore.domain.CreditCard</class>
+        <class>org.agoncal.application.petstore.domain.Book</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!-- Properties for EclipseLink -->
