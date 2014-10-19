@@ -16,21 +16,22 @@
  */
 package org.agoncal.application.petstore.persistence;
 
-import org.agoncal.application.petstore.exception.ValidationException;
-import org.agoncal.application.petstore.util.Generics;
-import org.agoncal.application.petstore.util.Parameter;
-import org.agoncal.application.petstore.util.Reflection;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import java.lang.reflect.Method;
 import java.util.Collection;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+
+import org.agoncal.application.petstore.exception.ValidationException;
+import org.agoncal.application.petstore.util.Parameter;
+import org.agoncal.application.petstore.util.Reflection;
 
 /**
  * Beautiful Source of DRY CRUD
  *
  * DRY: Don't Repeat Yourself
- * CRUD: Create Remove Update Delete
+ * CRUD: Create Read Update Delete
  *
  * @version $Revision$ $Date$
  */
@@ -128,23 +129,65 @@ public class PersistenceHandler {
      * @throws Throwable
      */
     public static Object invokeNamedQuery(EntityManager em, Method method, Object[] args) throws Throwable {
+    	final boolean optional = method.getAnnotation(Optional.class) != null;
         final NamedQuery namedQuery = method.getAnnotation(NamedQuery.class);
 
-        final TypedQuery<?> typedQuery = em.createNamedQuery(namedQuery.value(), getEntityType(method));
+        final Query query = em.createNamedQuery(namedQuery.value());
 
+        Integer offset = null;
+        Integer maxResults = null;
+        
         for (Parameter parameter : Reflection.params(method, args)) {
             final QueryParam queryParam = parameter.getAnnotation(QueryParam.class);
-
-            if (parameter.getValue() == null) {
-                throw new ValidationException(queryParam.value() + " is null");
+            if (queryParam != null) {
+	            if (parameter.getValue() == null) {
+	                throw new ValidationException(queryParam.value() + " is null");
+	            }
+	
+	            query.setParameter(queryParam.value(), parameter.getValue());
             }
-
-            typedQuery.setParameter(queryParam.value(), parameter.getValue());
+            
+            final Offset o = parameter.getAnnotation(Offset.class);
+            if (o != null && (isInt(parameter.getType()))) {
+            	offset = (Integer) parameter.getValue();
+            }
+            
+            final MaxResults m = parameter.getAnnotation(MaxResults.class);
+            if (m != null && (isInt(parameter.getType()))) {
+            	maxResults = (Integer) parameter.getValue();
+            }
         }
 
-        return (isList(method))? typedQuery.getResultList() : typedQuery.getSingleResult();
+        if (offset != null && maxResults != null) {
+        	query.setFirstResult(offset);
+        	query.setMaxResults(maxResults);
+        }
+        
+        try {
+			if (namedQuery.update()) {
+				final int recordsUpdated = query.executeUpdate();
+				if (isInt(method.getReturnType())) {
+					return recordsUpdated;
+				} else if (isVoid(method.getReturnType())) {
+					return null;
+				} else {
+					throw new IllegalArgumentException(
+							"Update methods must have a void or int return type");
+				}
+			} else {
+				return (isList(method)) ? query.getResultList() : query
+						.getSingleResult();
+			}
+        } catch (final NoResultException e) {
+        	
+        	// if we don't require that this actually returns a value, we can return null
+        	if (optional) {
+        		return null;
+        	}
+        	
+        	throw e;
+        }
     }
-
     /**
      * UPDATE
      *
@@ -160,9 +203,10 @@ public class PersistenceHandler {
         final Iterable<Parameter> params = Reflection.params(method, args);
         final Parameter parameter = params.iterator().next();
 
-        if (parameter.getValue() == null)
+        if (parameter.getValue() == null) {
             throw new ValidationException(parameter.getType().getSimpleName() + " object is null");
-
+		}
+		
         return em.merge(parameter.getValue());
     }
 
@@ -199,16 +243,22 @@ public class PersistenceHandler {
     }
 
     /**
-     * Determine the type of entity being returned
-     * @param method
+     * Is the specified type an int?
+     * @param clazz
      * @return
      */
-    private static Class<?> getEntityType(Method method) {
-        if (isList(method)) {
-            return Generics.getCollectionType(method.getGenericReturnType());
-        } else {
-            return method.getReturnType();
-        }
+    private static boolean isInt(final Class<?> clazz) {
+    	return Integer.class.isAssignableFrom(clazz) 
+    			|| Integer.TYPE.isAssignableFrom(clazz);
+    }
+    
+    /** 
+     * Is the specified type void?
+     * @param clazz
+     * @return
+     */
+    private static boolean isVoid(final Class<?> clazz) {
+    	return Void.class.equals(clazz) || Void.TYPE.equals(clazz);
     }
 
 }
