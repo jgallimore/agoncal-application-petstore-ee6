@@ -97,9 +97,9 @@
       <version>1.0.5</version>
     </dependency>
     <dependency>
-    	<groupId>org.tomitribe</groupId>
-    	<artifactId>dry-crud</artifactId>
-    	<version>1.0</version>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>dry-crud</artifactId>
+      <version>1.0</version>
     </dependency>
   </dependencies>
 

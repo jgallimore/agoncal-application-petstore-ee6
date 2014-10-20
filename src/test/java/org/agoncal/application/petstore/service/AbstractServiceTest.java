@@ -20,7 +20,7 @@ public abstract class AbstractServiceTest {
     @Deployment
     public static JavaArchive createTestArchive() {
         JavaArchive archive = ShrinkWrap.create(JavaArchive.class)
-                .addPackages(true, "org.agoncal.application.petstore")
+                .addPackages(true, "org.agoncal.application.petstore", "org.tomitribe.drycrud.persistence")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsManifestResource("META-INF/persistence.xml", "persistence.xml");
 //        System.out.println(archive.toString(true));

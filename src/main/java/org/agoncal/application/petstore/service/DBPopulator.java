@@ -28,7 +28,7 @@ import javax.inject.Inject;
         password="app",
         databaseName="applicationPetstoreDB",
         properties = {"connectionAttributes=;create=true"},
-        url = "jdbc:derby:derbyDB;create=true"
+        url = "jdbc:derby:applicationPetstoreDB;create=true"
     ),
     @DataSourceDefinition (
         transactional = false,
@@ -38,7 +38,7 @@ import javax.inject.Inject;
         password="app",
         databaseName="applicationPetstoreDB",
         properties = {"connectionAttributes=;create=true"},
-        url = "jdbc:derby:derbyDB;create=true"
+        url = "jdbc:derby:applicationPetstoreDB;create=true"
     )
 })
 public class DBPopulator {
