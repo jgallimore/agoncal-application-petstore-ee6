@@ -2,19 +2,20 @@ package org.agoncal.application.petstore.service;
 
 import org.agoncal.application.petstore.domain.Customer;
 import org.agoncal.application.petstore.meta.Id;
-import org.agoncal.application.petstore.persistence.Find;
-import org.agoncal.application.petstore.persistence.Merge;
-import org.agoncal.application.petstore.persistence.NamedQuery;
-import org.agoncal.application.petstore.persistence.Persist;
-import org.agoncal.application.petstore.persistence.PersistenceHandler;
-import org.agoncal.application.petstore.persistence.QueryParam;
-import org.agoncal.application.petstore.persistence.Remove;
 import org.agoncal.application.petstore.util.Loggable;
+import org.tomitribe.drycrud.persistence.Find;
+import org.tomitribe.drycrud.persistence.Merge;
+import org.tomitribe.drycrud.persistence.NamedQuery;
+import org.tomitribe.drycrud.persistence.Persist;
+import org.tomitribe.drycrud.persistence.PersistenceHandler;
+import org.tomitribe.drycrud.persistence.QueryParam;
+import org.tomitribe.drycrud.persistence.Remove;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

@@ -1,8 +1,9 @@
 package org.agoncal.application.petstore.util;
 
-import org.agoncal.application.petstore.exception.ValidationException;
 
 import javax.ejb.EJBException;
+
+import org.agoncal.application.petstore.exception.ValidationException;
 
 /**
  * @author Antonio Goncalves
